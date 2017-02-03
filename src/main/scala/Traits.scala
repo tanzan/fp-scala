@@ -35,12 +35,15 @@ object Traits {
   class Animal {
     def who:String = "Animal"
   }
+
   trait Furry extends Animal {
     override def who:String = "Furry"
   }
+
   trait HasLegs extends Animal {
     override def who:String = "Has Legs"
   }
+
   trait FourLegged extends HasLegs {
     override def who: String = "Four Legged"
   }
