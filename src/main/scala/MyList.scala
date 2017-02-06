@@ -11,6 +11,13 @@ trait MyList[+T] {
 
   def ::[B >: T](h:B):MyList[B] = new ::(h, this)
 
+  /*def :::[B >: T](list:MyList[B]):MyList[B] = {
+    def iterate(l:MyList[T], r:MyList[B]):MyList[B] = {
+
+    }
+    iterate()
+  }*/
+
   def reverse:MyList[T] = {
     def iterate(l:MyList[T], r:MyList[T]):MyList[T] = {
       if (l.isEmpty()) r
@@ -46,9 +53,14 @@ case class ::[T](h:T, t:MyList[T]) extends MyList[T] {
   def isEmpty(): Boolean = false
 }
 
+class A
+
+class B extends A
+
 object Main {
   def main(args: Array[String]): Unit = {
     println(1::2::3::MyNil)
     println((1::2::3::MyNil).reverse)
+
   }
 }
