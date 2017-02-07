@@ -55,9 +55,86 @@ object AbstractTypes {
     val Blue = Value
   }
 
+
+  abstract class CurrencyZone {
+    type Currency <: AbstractCurrency
+    def make(units:Long):Currency
+
+    val CurrencyUnit:Currency
+    val destination: String
+
+    def from(that:CurrencyZone#AbstractCurrency):Currency =
+      make(math.round(that.amount.toDouble * Converter.exchangeRate(that.zone.destination)(destination)))
+
+    abstract class AbstractCurrency {
+      val zone:CurrencyZone = CurrencyZone.this
+
+      val amount: Long
+
+      private def decimals(n: Long):Int =
+        if (n <= 1) 0 else 1 + decimals(n/10)
+
+      override def toString() =
+        (amount.toDouble/CurrencyUnit.amount).formatted("%." + decimals(CurrencyUnit.amount) + "f") + " " + destination
+
+      def +(that: Currency): Currency = make(amount + that.amount)
+
+      def *(factor: Double): Currency = make(math.round(amount * factor))
+    }
+  }
+
+
+  object US extends CurrencyZone {
+    type Currency = Dollar
+
+    val destination = "USD"
+
+    abstract class Dollar extends AbstractCurrency
+
+    def make(units: Long) = new Dollar {
+      val amount: Long = units
+    }
+
+    val Cent = make(1)
+    val Dollar = make(100)
+
+    val CurrencyUnit = Dollar
+  }
+
+  object UA extends CurrencyZone {
+    type Currency = Hryvna
+
+    val destination = "UAH"
+
+    abstract class Hryvna extends AbstractCurrency
+
+    def make(units: Long) = new Hryvna {
+      val amount: Long = units
+    }
+
+    val Kopiyka = make(1)
+    val Hryvna = make(100)
+
+    val CurrencyUnit = Hryvna
+  }
+
+  object Converter {
+    var exchangeRate:Map[String,Map[String, Double]] = Map(
+      "USD" -> Map("USD" -> 1.0   , "EUR" -> 0.7596,
+        "JPY" -> 1.211 , "CHF" -> 1.223, "UAH" -> 27),
+      "EUR" -> Map("USD" -> 1.316 , "EUR" -> 1.0   ,
+        "JPY" -> 1.594 , "CHF" -> 1.623),
+      "JPY" -> Map("USD" -> 0.8257, "EUR" -> 0.6272,
+        "JPY" -> 1.0   , "CHF" -> 1.018),
+      "CHF" -> Map("USD" -> 0.8108, "EUR" -> 0.6160,
+        "JPY" -> 0.982 , "CHF" -> 1.0  ),
+      "UAH" -> Map("USD" -> 1/27.0)
+    ) }
+
+
 }
 
-object AbstractTypesMain {
+object AbstractTypesMain extends App {
   import AbstractTypes._
   val c:Concrete = new Concrete
   val a:Abstract = c
@@ -81,5 +158,10 @@ object AbstractTypesMain {
 
   val f:lessy.SuitableFood = new bootsie.SuitableFood
 
-  val r:Color.Value = Color.Red
+  val r:Color.Value= Color.Red
+
+  println(US.make(100))
+
+  println(UA.make(2700))
+  println(UA.from(US.make(100)))
 }
