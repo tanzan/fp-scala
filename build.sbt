@@ -2,5 +2,5 @@ name := "fp-scala"
 
 version := "1.0"
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.11.8"
     
