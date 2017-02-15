@@ -1,3 +1,4 @@
+import scala.collection.generic.CanBuildFrom
 import scala.collection.{IndexedSeqLike, mutable}
 
 /**
@@ -19,13 +20,22 @@ final class RNA private (groups:Array[Int], val length: Int)
 
   import RNA._
 
-  override protected[this] def newBuilder: mutable.Builder[Base, RNA] =
-    mutable.ArrayBuffer[Base]() mapResult(buf  => fromSeq(buf))
+  override protected def newBuilder: mutable.Builder[Base, RNA] = RNA.newBuilder
 
   def apply(idx: Int): Base = {
     if (idx < 0 || idx >= length)
       throw new IndexOutOfBoundsException
     Base.fromInt(groups(idx/N) >> (idx % N * S) & M)
+  }
+
+  override def foreach[U](f: (Base) => U): Unit = {
+    var i = 0
+    var b = 0
+    while (i < length) {
+      b = if (i % N == 0) groups(i / N) else b >>> S
+      f(Base.fromInt(b & M))
+      i += 1
+    }
   }
 }
 
@@ -48,5 +58,16 @@ object RNA {
 
 
   def apply(buf:Base *):RNA = fromSeq(buf)
+
+  private def newBuilder: mutable.Builder[Base, RNA] =
+    mutable.ArrayBuffer[Base]() mapResult fromSeq
+
+  implicit def canBuildFrom: CanBuildFrom[RNA, Base, RNA] =
+    new CanBuildFrom[RNA, Base, RNA] {
+
+      override def apply(from: RNA): mutable.Builder[Base, RNA] = newBuilder
+
+      override def apply(): mutable.Builder[Base, RNA] = newBuilder
+    }
 
 }
