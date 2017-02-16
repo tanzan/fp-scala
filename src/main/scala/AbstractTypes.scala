@@ -150,8 +150,11 @@ object AbstractTypesMain extends App {
   bootsie.eat(new lessy.SuitableFood)
 
 
+
   val o1 = new Outer
   val o2 = new Outer
+
+  val t:o1.type  =  o1
 
   val i:Outer#Inner = new o2.Inner
   //val i1:o1.Inner = new o2.Inner does not compile
