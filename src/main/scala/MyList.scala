@@ -1,5 +1,4 @@
 import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
 
 /**
   * Created by serg on 2/2/17.
@@ -20,7 +19,6 @@ abstract class MyList[+T] {
 
   def size:Int =
     if(isEmpty) 0 else 1 + tail.size
-
 
   def drop(n:Int):MyList[T] =
     if (n <= 0) this
@@ -86,20 +84,14 @@ object MyList {
   def apply[T](elems:T *):MyList[T] =
     if (elems.isEmpty) MyNil
     else elems.head :: apply[T](elems.tail:_ *)
-}
 
-object Main {
-  def main(args: Array[String]): Unit = {
-    println(1::2::3::MyNil)
-    println((1::2::3::MyNil).reverse)
-
-    println((1::2::MyNil):::(3::4::MyNil))
-    println(MyList(1,2,3))
-    println(MyList(1,2,3).drop(2))
-    println(MyList(1,2,3).map(_ * 2))
-    println(MyList(1,2,3).flatMap(x => MyList(x * x)))
-    println(MyList(1,2,3,4).dropRight(2))
-    println(MyList(1,2,3,4).take(2))
-
+  def unapplySeq[T](elems:MyList[T]): Option[Seq[T]] = {
+    def build(elems:MyList[T]): List[T] = {
+      if (elems.isEmpty) Nil
+      else elems.head +: build(elems.tail)
+    }
+    Some(build(elems))
   }
 }
+
+
