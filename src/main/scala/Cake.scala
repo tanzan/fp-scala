@@ -39,7 +39,7 @@ abstract class Browser {
   def recipesUsing(food: Food) =
     database.allRecipes.filter(recipe =>
       recipe.ingredients.contains(food))
-  def displayCategory(category: Database#FoodCategory) = {
+  def displayCategory(category: database.FoodCategory) = {
     println(category)
   }
 }
@@ -73,4 +73,24 @@ object StudentDatabase extends Database {
   def allRecipes = List(HeatItUp)
   def allCategories = List(
     FoodCategory("edible", List(FrozenFood)))
+}
+
+object GotApples {
+  def main(args: Array[String]) = {
+    val db: Database =
+      if(args(0) == "student")
+        StudentDatabase
+      else
+        SimpleDatabase
+    object browser extends Browser {
+      val database: db.type = db
+    }
+    val apple = SimpleDatabase.foodNamed("Apple").get
+    for(recipe <- browser.recipesUsing(apple))
+      println(recipe)
+
+    for (category <- db.allCategories)
+      browser.displayCategory(category)
+
+  }
 }
