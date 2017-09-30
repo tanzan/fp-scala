@@ -1,4 +1,6 @@
-val rna = RNA(A, T, G, A)
+import core._
+
+val rna = RNA(core.A, T, G, core.A)
 
 rna.take(3)
 

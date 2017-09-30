@@ -1,3 +1,5 @@
+package core
+
 import scala.util.parsing.combinator._
 
 /**
@@ -23,7 +25,7 @@ class Arith extends JavaTokenParsers {
 
 
 class JSON extends JavaTokenParsers {
-  def value:Parser[Any] = obj | arr | stringLiteral | floatingPointNumber | "null" | "false" | "true"
+  def value:Parser[Any] = obj | arr | stringLiteral | floatingPointNumber | "null" | "false" | "true" | failure("illegal start of value")
   def obj:Parser[Any] = "{" ~> members <~ "}"
   def arr:Parser[Any] = "[" ~> values <~ "]"
   def members:Parser[Map[String,Any]] = repsep(member, ",") ^^ (Map() ++ _)

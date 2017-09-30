@@ -1,6 +1,7 @@
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+package core
 
-/**
+import scala.collection.mutable.ListBuffer
+; /**
   * Created by serg on 2/3/17.
   */
 object Traits {

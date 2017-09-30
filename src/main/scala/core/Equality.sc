@@ -1,3 +1,5 @@
+import core._
+
 val p1 = new Point(1,2)
 
 val p2 = new Point(1,2)

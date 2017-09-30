@@ -1,3 +1,5 @@
+import core._
+
 1::2::3::MyNil
 (1::2::3::MyNil).reverse
 

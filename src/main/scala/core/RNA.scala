@@ -1,3 +1,5 @@
+package core
+
 import scala.collection.generic.CanBuildFrom
 import scala.collection.{IndexedSeqLike, mutable}
 
@@ -11,8 +13,8 @@ case object G extends Base
 case object U extends Base
 
 object Base {
-  val fromInt: Int => Base = Array(A, T, G, U)
-  val toInt: Base => Int = Map(A -> 0, T -> 1, G -> 2, U -> 3)
+  val fromInt: Int => Base = Array(core.A, T, G, U)
+  val toInt: Base => Int = Map(core.A -> 0, T -> 1, G -> 2, U -> 3)
 }
 
 final class RNA private (groups:Array[Int], val length: Int)

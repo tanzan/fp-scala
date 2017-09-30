@@ -1,3 +1,4 @@
+package core
 /**
   * Created by serg on 2/6/17.
   */

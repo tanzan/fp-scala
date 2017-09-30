@@ -1,3 +1,5 @@
+import core._
+
 val m = PrefixMap("a" -> 10, "b" -> 50)
 
 m += "abc" -> 0
