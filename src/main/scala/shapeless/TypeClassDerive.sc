@@ -28,19 +28,19 @@ implicit val intEncoder: CsvEncoder[Int] =
 implicit val booleanEncoder: CsvEncoder[Boolean] =
   createEncoder(bool => List(if(bool) "yes" else "no"))
 
-import shapeless.{HList, ::, HNil}
+import shapeless.{::, HList, HNil, Lazy}
 
 implicit val hnilEncoder: CsvEncoder[HNil] =
   createEncoder(hnil => Nil)
 
 implicit def hlistEncoder[H, T <: HList](
                                           implicit
-                                          hEncoder: CsvEncoder[H],
+                                          hEncoder: Lazy[CsvEncoder[H]],
                                           tEncoder: CsvEncoder[T]
                                         ): CsvEncoder[H :: T] =
   createEncoder {
     case h :: t =>
-      hEncoder.encode(h) ++ tEncoder.encode(t)
+      hEncoder.value.encode(h) ++ tEncoder.encode(t)
   }
 
 
@@ -77,7 +77,7 @@ implicit val iceCreamEncoder: CsvEncoder[IceCream] = {
 
 writeCsv(iceCreams)
 
-///// generic product encoder
+///// generic encoder
 
 //implicit def genericEncoder[A, R](
 //                                implicit
@@ -90,11 +90,54 @@ writeCsv(iceCreams)
 implicit def genericEncoder[A, R](
                                    implicit
                                    gen: Generic.Aux[A, R],
-                                   env: CsvEncoder[R]
+                                   env: Lazy[CsvEncoder[R]]
                                  ): CsvEncoder[A] =
-  createEncoder(a => env.encode(gen.to(a)))
+  createEncoder(a => env.value.encode(gen.to(a)))
 
 writeCsv(employees)
+
+///// coproduct encoder
+
+sealed trait Shape
+final case class Rectangle(width: Double, height: Double) extends Shape
+final case class Circle(radius: Double) extends Shape
+
+
+import shapeless.{Coproduct, :+:, CNil, Inl, Inr}
+
+implicit val cnilEncoder: CsvEncoder[CNil] =
+  createEncoder(cnil => throw new Exception("Inconceivable!"))
+
+implicit def coproductEncoder[H, T <: Coproduct](
+                                                  implicit
+                                                  hEncoder: Lazy[CsvEncoder[H]],
+                                                  tEncoder: CsvEncoder[T]
+                                                ): CsvEncoder[H :+: T] = createEncoder {
+  case Inl(h) => hEncoder.value.encode(h)
+  case Inr(t) => tEncoder.encode(t)
+}
+
+val shapes: List[Shape] = List(
+  Rectangle(3.0, 4.0),
+  Circle(1.0)
+)
+
+implicit val doubleEncoder: CsvEncoder[Double] =
+  createEncoder(d => List(d.toString))
+
+writeCsv(shapes)
+
+
+///// recursive type
+
+sealed trait Tree[A]
+case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
+case class Leaf[A](value: A) extends Tree[A]
+
+CsvEncoder[Tree[Int]]
+
+import scala.reflect.runtime.universe._
+println(reify(CsvEncoder[Int]))
 
 
 
