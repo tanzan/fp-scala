@@ -1,5 +1,5 @@
-import shapeless.{::, HList, HNil, the}
-import shapeless.ops.hlist.Last
+import shapeless.{::, Generic, HList, HNil, the}
+import shapeless.ops.hlist.{IsHCons, Last}
 val last1 = Last[String :: Int :: HNil]
 val last2 = Last[Int :: String :: HNil]
 
@@ -40,3 +40,37 @@ second1("foo" :: true :: 123 :: HNil)
 second2("bar" :: 321 :: false :: HNil)
 
 // second1("baz" :: HNil) this doesn't compile
+
+///// chaining dependent functions
+
+def lastField[A, Repr <: HList](input: A)(
+  implicit
+  gen: Generic.Aux[A, Repr],
+  last: Last[Repr]
+): last.Out = last.apply(gen.to(input))
+
+case class Vec(x: Int, y: Int)
+case class Rect(origin: Vec, extent: Vec)
+
+lastField(Rect(Vec(1, 2), Vec(3, 4)))
+
+//def getWrappedValue[A, H](input: A)(
+//  implicit
+//  gen: Generic.Aux[A, H :: HNil]
+//): H = gen.to(input).head
+
+//def getWrappedValue[A, Repr <: HList, Head, Tail <: HList](input: A)(
+//  implicit
+//  gen: Generic.Aux[A, Repr],
+//  ev: (Head :: Tail) =:= Repr
+//): Head = gen.to(input).head
+
+def getWrappedValue[A, Repr <: HList, Head](in: A)(
+  implicit
+  gen: Generic.Aux[A, Repr],
+  isHCons: IsHCons.Aux[Repr, Head, HNil]
+): Head = gen.to(in).head
+
+case class Wrapper(value: Int)
+getWrappedValue(Wrapper(42))
+
